@@ -1,0 +1,8 @@
+{
+  "name": "Remix ChessMaster Engine",
+  "description": "Analyze chess games, play offline, and compete against customizable Stockfish engines directly on your device for total privacy.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

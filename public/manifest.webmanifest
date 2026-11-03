@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "Stockfish Chess Review & Play",
+  "short_name": "ChessReview",
+  "description": "Android chess companion app for reviewing Chess.com games with Stockfish engine analysis, move classifications, offline pass-and-play, and customizable Stockfish bots running 100% on your device CPU.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#1e293b",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["games", "utilities", "entertainment"]
+}
