@@ -289,13 +289,13 @@ print("SUCCESS: Verified signed APK created!")
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-black text-white">Stockfish Android APK</h3>
+                <h3 className="text-base font-black text-white">Avelux Grand Android APK</h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                   Ready to Install
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                1-Click Direct Download • Signed APK • Verified on Android 7 to 15
+                1-Click Direct Download • Official Signed APK • Android 7 to 15
               </p>
             </div>
           </div>
@@ -318,7 +318,7 @@ print("SUCCESS: Verified signed APK created!")
                   Official Signed Package (v1, v2 & v3 schemes)
                 </div>
                 <h4 className="text-sm font-black text-white">
-                  stockfish-chess-review.apk (4.5 MB)
+                  avelux-grand.apk (4.5 MB • Stockfish 19)
                 </h4>
                 <p className="text-xs text-slate-300">
                   Includes pure Java launcher, Dalvik classes.dex, and complete on-device Stockfish 19 WebAssembly neural engine.

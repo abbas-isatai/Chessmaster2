@@ -53,9 +53,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white mx-auto shadow-lg shadow-emerald-950 mb-3">
                   <Sparkles className="w-8 h-8" />
                 </div>
-                <h2 className="text-lg font-black text-white">Stockfish Chess Review</h2>
+                <h2 className="text-lg font-black text-white">Avelux Grand</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  High-speed engine analysis, move classifications & offline play running directly on your phone's CPU.
+                  Grandmaster-grade Stockfish review, move classifications & offline play running directly on your device CPU.
                 </p>
               </div>
 

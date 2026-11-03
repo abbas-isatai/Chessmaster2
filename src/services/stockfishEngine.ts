@@ -26,7 +26,7 @@ export function centipawnsToWinProb(cp: number): number {
 }
 
 // Built-in PeSTO piece square tables for instant zero-dependency evaluation
-const PIECE_VALUES: Record<string, number> = {
+export const PIECE_VALUES: Record<string, number> = {
   p: 100,
   n: 320,
   b: 330,
@@ -165,8 +165,17 @@ export class StockfishEngine {
     if (typeof window === 'undefined') return;
 
     try {
-      // Official Stockfish 19 WASM engine running directly on the user's CPU
-      const workerUrl = typeof WebAssembly === 'object' ? '/stockfish-19-lite-single.js' : '/stockfish-19-asm.js';
+      const getAssetUrl = (filename: string) => {
+        try {
+          return new URL(filename, window.location.href).href;
+        } catch {
+          return `./${filename}`;
+        }
+      };
+
+      // Official Stockfish 19 engine running directly on device CPU
+      const workerFile = typeof WebAssembly === 'object' ? 'stockfish-19-lite-single.js' : 'stockfish-19-asm.js';
+      const workerUrl = getAssetUrl(workerFile);
       this.worker = new Worker(workerUrl);
 
       this.worker.onmessage = (e: MessageEvent) => {
@@ -177,7 +186,7 @@ export class StockfishEngine {
       this.worker.onerror = (err) => {
         console.warn('Stockfish 19 worker error, falling back to legacy worker or heuristic:', err);
         try {
-          this.worker = new Worker('/stockfish.js');
+          this.worker = new Worker(getAssetUrl('stockfish.js'));
           this.worker.onmessage = (e: MessageEvent) => {
             const line = typeof e.data === 'string' ? e.data : '';
             this.handleEngineOutput(line);

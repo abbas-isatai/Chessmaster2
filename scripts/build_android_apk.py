@@ -29,10 +29,26 @@ def main():
     os.makedirs(obj_dir, exist_ok=True)
     bin_dir = os.path.join(build_dir, 'bin')
     os.makedirs(bin_dir, exist_ok=True)
-    res_dir = os.path.join(build_dir, 'res', 'values')
-    os.makedirs(res_dir, exist_ok=True)
+    res_dir = os.path.join(build_dir, 'res')
+    os.makedirs(os.path.join(res_dir, 'values'), exist_ok=True)
     assets_dir = os.path.join(build_dir, 'assets')
     
+    # Copy icons to res/mipmap folders for all densities
+    icon_mappings = [
+        ('icon-48.png', 'mipmap-mdpi'),
+        ('icon-72.png', 'mipmap-hdpi'),
+        ('icon-96.png', 'mipmap-xhdpi'),
+        ('icon-144.png', 'mipmap-xxhdpi'),
+        ('icon.png', 'mipmap-xxxhdpi'),
+    ]
+    for src_name, folder in icon_mappings:
+        target_folder = os.path.join(res_dir, folder)
+        os.makedirs(target_folder, exist_ok=True)
+        src_path = os.path.join(public_dir, src_name)
+        if os.path.exists(src_path):
+            shutil.copy(src_path, os.path.join(target_folder, 'ic_launcher.png'))
+            shutil.copy(src_path, os.path.join(target_folder, 'ic_launcher_round.png'))
+
     # 1. Copy web assets from dist to assets/
     print("1. Copying dist web bundle to assets/...")
     shutil.copytree(dist_dir, assets_dir)
@@ -66,6 +82,8 @@ def main():
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true">
 
@@ -86,15 +104,15 @@ def main():
         f.write(manifest_content)
 
     # 3. Write strings.xml
-    strings_path = os.path.join(res_dir, 'strings.xml')
+    strings_path = os.path.join(res_dir, 'values', 'strings.xml')
     with open(strings_path, 'w') as f:
         f.write('''<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Stockfish Chess Review</string>
+    <string name="app_name">Avelux Grand</string>
 </resources>
 ''')
 
-    # 4. Write MainActivity.java
+    # 4. Write MainActivity.java with Universal File Access to prevent blank screen
     java_file = os.path.join(src_dir, 'MainActivity.java')
     with open(java_file, 'w') as f:
         f.write('''package com.stockfish.chessreview;
@@ -108,8 +126,10 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.util.Log;
 
 public class MainActivity extends Activity {
+    private static final String TAG = "AveluxGrand";
     private WebView mWebView;
 
     @Override
@@ -132,7 +152,11 @@ public class MainActivity extends Activity {
         settings.setDatabaseEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
+        // CRITICAL: Allow file URLs to access other assets (avoids blank screen on Android)
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
 
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
@@ -140,10 +164,15 @@ public class MainActivity extends Activity {
                 view.loadUrl(url);
                 return true;
             }
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Log.e(TAG, "WebView error: " + description + " at " + failingUrl);
+            }
         });
 
         mWebView.setWebChromeClient(new WebChromeClient());
 
+        // Load local asset index
         mWebView.loadUrl("file:///android_asset/index.html");
     }
 
@@ -186,7 +215,7 @@ public class MainActivity extends Activity {
     run_cmd([
         'aapt', 'package', '-f',
         '-M', manifest_path,
-        '-S', os.path.join(build_dir, 'res'),
+        '-S', res_dir,
         '-I', android_jar,
         '-A', assets_dir,
         '-F', unaligned_apk
@@ -203,31 +232,33 @@ public class MainActivity extends Activity {
 
     # 10. Generate Keystore if needed and Sign with apksigner
     print("7. Signing APK with official Android keystore via apksigner...")
-    keystore_path = os.path.join(build_dir, 'chess_release.keystore')
+    keystore_path = os.path.join(build_dir, 'avelux_release.keystore')
     if not os.path.exists(keystore_path):
         run_cmd([
             'keytool', '-genkey', '-v',
             '-keystore', keystore_path,
-            '-storepass', 'stockfish123',
-            '-alias', 'stockfishkey',
-            '-keypass', 'stockfish123',
+            '-storepass', 'aveluxgrand123',
+            '-alias', 'aveluxkey',
+            '-keypass', 'aveluxgrand123',
             '-keyalg', 'RSA',
             '-keysize', '2048',
             '-validity', '10000',
-            '-dname', 'CN=Stockfish Chess, OU=Mobile, O=Stockfish, L=San Francisco, ST=California, C=US'
+            '-dname', 'CN=Avelux Grand, OU=Chess, O=Avelux, L=San Francisco, ST=California, C=US'
         ])
 
-    final_apk_path = os.path.join(public_dir, 'stockfish-chess-review.apk')
+    final_apk_path = os.path.join(public_dir, 'avelux-grand.apk')
     run_cmd([
         'apksigner', 'sign',
         '--ks', keystore_path,
-        '--ks-pass', 'pass:stockfish123',
-        '--key-pass', 'pass:stockfish123',
+        '--ks-pass', 'pass:aveluxgrand123',
+        '--key-pass', 'pass:aveluxgrand123',
         '--out', final_apk_path,
         aligned_apk
     ])
 
-    # Also copy to root for direct root URL access
+    # Also copy to public/stockfish-chess-review.apk and root versions
+    shutil.copy(final_apk_path, os.path.join(public_dir, 'stockfish-chess-review.apk'))
+    shutil.copy(final_apk_path, os.path.join(base_dir, 'avelux-grand.apk'))
     shutil.copy(final_apk_path, os.path.join(base_dir, 'stockfish-chess-review.apk'))
 
     # Verify signature

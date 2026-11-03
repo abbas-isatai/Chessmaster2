@@ -27,6 +27,7 @@ import {
   Share2,
   Smartphone,
   Download,
+  Flame,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -202,12 +203,12 @@ export const GameReview: React.FC<GameReviewProps> = ({ initialPgn, onOpenApkMod
           </div>
           <div>
             <h1 className="text-sm font-black tracking-tight text-white flex items-center gap-1.5">
-              Stockfish 19 Engine
+              Avelux Grand
               <span className="text-[10px] px-1.5 py-0.2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-mono">
-                CPU On-Device
+                Stockfish 19 CPU
               </span>
             </h1>
-            <p className="text-[11px] text-slate-400">Zero Server Latency • 100% Privacy</p>
+            <p className="text-[11px] text-slate-400">Grandmaster Review • Zero Server Latency</p>
           </div>
         </div>
 
@@ -407,6 +408,19 @@ export const GameReview: React.FC<GameReviewProps> = ({ initialPgn, onOpenApkMod
             </div>
           </div>
 
+          {/* Opening Theory Banner */}
+          {reviewSummary?.opening && (
+            <div className="mt-3 p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/50 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-mono font-bold text-[10px]">
+                  {reviewSummary.opening.eco}
+                </span>
+                <span className="font-bold text-white">{reviewSummary.opening.name}</span>
+              </div>
+              <span className="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Book Theory</span>
+            </div>
+          )}
+
           {/* CAPS Accuracy Score Comparison */}
           {reviewSummary && (
             <div className="grid grid-cols-2 gap-3 pt-3">
@@ -420,7 +434,7 @@ export const GameReview: React.FC<GameReviewProps> = ({ initialPgn, onOpenApkMod
                     </span>
                   </div>
                   <div className="text-[10px] text-slate-400 mt-0.5">
-                    {metadata.whiteElo ? `${metadata.whiteElo} Elo` : 'Accuracy'}
+                    {metadata.whiteElo ? `${metadata.whiteElo} Elo` : 'Player'} • Est. ~{(reviewSummary as any).whitePerformanceElo || 1500}
                   </div>
                 </div>
                 <div className="text-right">
@@ -441,7 +455,7 @@ export const GameReview: React.FC<GameReviewProps> = ({ initialPgn, onOpenApkMod
                     </span>
                   </div>
                   <div className="text-[10px] text-slate-400 mt-0.5">
-                    {metadata.blackElo ? `${metadata.blackElo} Elo` : 'Accuracy'}
+                    {metadata.blackElo ? `${metadata.blackElo} Elo` : 'Player'} • Est. ~{(reviewSummary as any).blackPerformanceElo || 1500}
                   </div>
                 </div>
                 <div className="text-right">
@@ -451,6 +465,33 @@ export const GameReview: React.FC<GameReviewProps> = ({ initialPgn, onOpenApkMod
                   <div className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">CAPS Score</div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Critical Turning Points Navigation */}
+          {reviewSummary && (reviewSummary as any).turningPoints?.length > 0 && (
+            <div className="mt-2.5 pt-2.5 border-t border-slate-800/60 flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+              <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider flex items-center gap-1 flex-shrink-0">
+                <Flame className="w-3.5 h-3.5 text-amber-400" />
+                Critical Moments ({(reviewSummary as any).turningPoints.length}):
+              </span>
+              {(reviewSummary as any).turningPoints.map((ply: number) => {
+                const m = reviewSummary.moves[ply - 1];
+                if (!m) return null;
+                return (
+                  <button
+                    key={ply}
+                    onClick={() => goToPly(ply)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border transition flex-shrink-0 cursor-pointer ${
+                      currentPly === ply
+                        ? 'bg-amber-500 text-slate-950 border-amber-400'
+                        : 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700'
+                    }`}
+                  >
+                    {m.color === 'w' ? `${m.moveNumber}.` : `${m.moveNumber}...`} {m.san} ({m.classification})
+                  </button>
+                );
+              })}
             </div>
           )}
 

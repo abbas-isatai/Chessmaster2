@@ -74,7 +74,7 @@ export default function App() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             <span className="text-[11px] font-semibold text-slate-200 truncate">
-              Android APK v1.0.0 Ready (4.5 MB • Signed)
+              Avelux Grand APK v1.0.0 (4.5 MB • Signed)
             </span>
           </div>
           <button
